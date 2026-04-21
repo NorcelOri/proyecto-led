@@ -1,26 +1,24 @@
-from flask import Flask, render_template
-import serial
+from flask import Flask, request, render_template
+import os
 
 app = Flask(__name__)
 
-arduino = serial.Serial('COM6', 9600)
-
 @app.route('/')
 def home():
-    return '''
-    <h1>Control LED</h1>
-    <button onclick="fetch('/on')">Prender</button>
-    <button onclick="fetch('/off')">Apagar</button>
-    '''
+    return render_template('index.html')
 
-@app.route('/on')
-def encender():
-    arduino.write(b'1')
-    return "LED ON"
+@app.route('/control', methods=['POST'])
+def control():
+    data = request.get_json()
+    estado = data.get('estado')
 
-@app.route('/off')
-def apagar():
-    arduino.write(b'0')
-    return "LED OFF"
+    if estado == 'on':
+        return "OK: Encendido"
+    elif estado == 'off':
+        return "OK: Apagado"
 
-app.run(host='0.0.0.0', port=5000)
+    return "Acción no válida"
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
