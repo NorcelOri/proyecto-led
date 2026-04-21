@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Control</title>
+    <style>
+    body {
+        text-align: center;
+        margin-top: 50px;
+        color: black;
+    }
+    </style>
+</head>
+<body id="fondo">
+
+    <h1>Control Remoto</h1>
+
+    <button onclick="enviar('on')">Prender</button>
+    <button onclick="enviar('off')">Apagar</button>
+
+    <p id="respuesta"></p>
+
+    <script>
+        function enviar(accion) {
+            fetch('/control', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ estado: accion })
+            })
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById("respuesta").innerText = data;
+
+                // 🔥 CAMBIO DE COLOR
+                if (accion === 'on') {
+                    document.getElementById("fondo").style.backgroundColor = "yellow";
+                    document.body.style.color = "black";
+                } else if (accion === 'off') {
+                    document.getElementById("fondo").style.backgroundColor = "black";
+                    document.body.style.color = "white";
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
