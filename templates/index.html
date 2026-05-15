@@ -20,28 +20,56 @@
     <p id="respuesta"></p>
 
     <script>
+
+        function actualizarPantalla(estado) {
+
+            if (estado === 'on') {
+
+                document.getElementById("fondo").style.backgroundColor = "yellow";
+                document.body.style.color = "black";
+
+            }
+            else if (estado === 'off') {
+
+                document.getElementById("fondo").style.backgroundColor = "black";
+                document.body.style.color = "white";
+
+            }
+
+            document.getElementById("respuesta").innerText =
+                "LED: " + estado;
+        }
+
         function enviar(accion) {
+
             fetch('/control', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ estado: accion })
-            })
+            });
+
+        }
+
+        function obtenerEstado() {
+
+            fetch('/estado')
             .then(res => res.text())
             .then(data => {
-                document.getElementById("respuesta").innerText = data;
 
-                // 🔥 CAMBIO DE COLOR
-                if (accion === 'on') {
-                    document.getElementById("fondo").style.backgroundColor = "yellow";
-                    document.body.style.color = "black";
-                } else if (accion === 'off') {
-                    document.getElementById("fondo").style.backgroundColor = "black";
-                    document.body.style.color = "white";
-                }
+                actualizarPantalla(data);
+
             });
+
         }
+
+        // consultar estado cada segundo
+        setInterval(obtenerEstado, 1000);
+
+        // consultar apenas carga la página
+        obtenerEstado();
+
     </script>
 
 </body>
