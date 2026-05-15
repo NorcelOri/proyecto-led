@@ -1,24 +1,27 @@
-from flask import Flask, request, render_template
-import os
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
+estado_led = "off"
+
 @app.route('/')
-def home():
+def index():
     return render_template('index.html')
 
 @app.route('/control', methods=['POST'])
 def control():
+    global estado_led
+
     data = request.get_json()
-    estado = data.get('estado')
+    estado_led = data['estado']
 
-    if estado == 'on':
-        return "OK: Encendido"
-    elif estado == 'off':
-        return "OK: Apagado"
+    print("Estado:", estado_led)
 
-    return "Acción no válida"
+    return f"LED {estado_led}"
+
+@app.route('/estado')
+def estado():
+    return estado_led
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True)
