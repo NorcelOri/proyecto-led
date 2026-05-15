@@ -1,76 +1,203 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Control</title>
-    <style>
-    body {
-        text-align: center;
-        margin-top: 50px;
-        color: black;
-    }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Control IoT</title>
+
+<style>
+
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#111827;
+    font-family:Arial, Helvetica, sans-serif;
+    transition:0.5s;
+}
+
+.contenedor{
+    text-align:center;
+}
+
+h1{
+    color:white;
+    margin-bottom:30px;
+}
+
+/* FOCO */
+
+.foco{
+    position:relative;
+    width:140px;
+    margin:auto;
+    margin-bottom:40px;
+}
+
+.bombilla{
+    width:140px;
+    height:140px;
+    border-radius:50%;
+    background:#444;
+    margin:auto;
+    transition:0.5s;
+    box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+.base{
+    width:50px;
+    height:50px;
+    background:#777;
+    margin:auto;
+    border-radius:0 0 10px 10px;
+}
+
+/* EFECTO PRENDIDO */
+
+.encendido .bombilla{
+    background:yellow;
+    box-shadow:
+        0 0 20px yellow,
+        0 0 40px yellow,
+        0 0 80px yellow;
+}
+
+/* BOTONES */
+
+.botones{
+    display:flex;
+    gap:20px;
+    justify-content:center;
+}
+
+button{
+    border:none;
+    padding:15px 25px;
+    border-radius:12px;
+    font-size:16px;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+.on{
+    background:#22c55e;
+}
+
+.off{
+    background:#ef4444;
+}
+
+#texto{
+    margin-top:25px;
+    color:white;
+    font-size:22px;
+    font-weight:bold;
+}
+
+</style>
 </head>
-<body id="fondo">
 
-    <h1>Control Remoto</h1>
+<body>
 
-    <button onclick="enviar('on')">Prender</button>
-    <button onclick="enviar('off')">Apagar</button>
+<div class="contenedor">
 
-    <p id="respuesta"></p>
+    <h1>Control IoT ESP32</h1>
 
-    <script>
+    <div class="foco" id="foco">
 
-        function actualizarPantalla(estado) {
+        <div class="bombilla"></div>
 
-            if (estado === 'on') {
+        <div class="base"></div>
 
-                document.getElementById("fondo").style.backgroundColor = "yellow";
-                document.body.style.color = "black";
+    </div>
 
-            }
-            else if (estado === 'off') {
+    <div class="botones">
 
-                document.getElementById("fondo").style.backgroundColor = "black";
-                document.body.style.color = "white";
+        <button class="on" onclick="enviar('on')">
+            Encender
+        </button>
 
-            }
+        <button class="off" onclick="enviar('off')">
+            Apagar
+        </button>
 
-            document.getElementById("respuesta").innerText =
-                "LED: " + estado;
-        }
+    </div>
 
-        function enviar(accion) {
+    <div id="texto">
+        Estado: OFF
+    </div>
 
-            fetch('/control', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ estado: accion })
-            });
+</div>
 
-        }
+<script>
 
-        function obtenerEstado() {
+function actualizarPantalla(estado){
 
-            fetch('/estado')
-            .then(res => res.text())
-            .then(data => {
+    const foco = document.getElementById("foco");
+    const texto = document.getElementById("texto");
 
-                actualizarPantalla(data);
+    if(estado === "on"){
 
-            });
+        foco.classList.add("encendido");
 
-        }
+        texto.innerHTML = "Estado: ON";
 
-        // consultar estado cada segundo
-        setInterval(obtenerEstado, 1000);
+        document.body.style.background = "#1e1b04";
 
-        // consultar apenas carga la página
-        obtenerEstado();
+    }
+    else{
 
-    </script>
+        foco.classList.remove("encendido");
+
+        texto.innerHTML = "Estado: OFF";
+
+        document.body.style.background = "#111827";
+    }
+}
+
+function enviar(accion){
+
+    fetch('/control',{
+
+        method:'POST',
+
+        headers:{
+            'Content-Type':'application/json'
+        },
+
+        body:JSON.stringify({
+            estado:accion
+        })
+
+    });
+
+}
+
+function obtenerEstado(){
+
+    fetch('/estado')
+    .then(res => res.text())
+    .then(data => {
+
+        actualizarPantalla(data);
+
+    });
+
+}
+
+setInterval(obtenerEstado,1000);
+
+obtenerEstado();
+
+</script>
 
 </body>
 </html>
